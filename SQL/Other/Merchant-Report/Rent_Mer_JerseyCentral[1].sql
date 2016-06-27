@@ -1,4 +1,3 @@
-
 declare @now as date, @start as date, @end as date, 
 @PaymentTypeClassifier as nvarchar(max), @PaymentTypeClassifierQuery as nvarchar(max), @Network as nvarchar(max), @months as nvarchar(max), 
 @columns as nvarchar(max), @query as nvarchar(max),
@@ -63,9 +62,9 @@ insert into #PaymentTypeClassifier select ''Visa'',''Credit''
 insert into #PaymentTypeClassifier select ''American Express'',''Credit''
 insert into #PaymentTypeClassifier select ''Pulse'',''Debit''
 insert into #PaymentTypeClassifier select ''Visa Debit'',''Debit''
-insert into #PaymentTypeClassifier select ''eCheck'',''ACH''
+insert into #PaymentTypeClassifier select ''eCheck'',''eCheck''
 insert into #PaymentTypeClassifier select ''Star'',''Debit''
-insert into #PaymentTypeClassifier select ''Scan'',''ACH''
+insert into #PaymentTypeClassifier select ''Scan'',''Scan''
 insert into #PaymentTypeClassifier select ''Debit Card'',''Debit''
 insert into #PaymentTypeClassifier select ''MC Debit'',''Debit'''
 exec(@PaymentTypeClassifierQuery)
@@ -101,12 +100,13 @@ group by
   c.ParentName, capacity.Capacity,
   ptc.PaymentTypeClassifier
 ) src
-
+select * from #Table
 
 select @columns = stuff((select distinct ',' + quotename(PaymentTypeClassifier+'_'+c.col) from #Table
   cross apply ( select 'Volume' col union all select 'Count') c
   order by 1 desc
 for xml path (''), type).value('.', 'nvarchar(max)'),1,1,'')
+
 
 set @query = '
 select 
@@ -134,18 +134,16 @@ from
 
 if object_id('tempdb..#Report') is not null drop table #Report
 create table #Report (Date date, ParentName nvarchar(max), Capacity nvarchar(max), 
-  [Credit Volume] nvarchar(max), [Credit Count] nvarchar(max), 
+  [Scan Volume] nvarchar(max),   [Scan Count] nvarchar(max),
+  [eCheck Volume] nvarchar(max),   [eCheck Count] nvarchar(max),
   [Debit Volume] nvarchar(max), [Debit Count] nvarchar(max), 
-  [ACH Volume] nvarchar(max),   [ACH Count] nvarchar(max)
+  [Credit Volume] nvarchar(max), [Credit Count] nvarchar(max)
   )
 insert #Report
 exec(@query)
 
 
 select *,  
-  isnull(cast([Credit Volume]as numeric),0)+isnull(cast([Debit Volume] as numeric),0)+isnull(cast([ACH Volume] as numeric),0) 'Total Volume' ,
-  isnull(cast([Credit Count]  as numeric),0)+isnull(cast([Debit Count]  as numeric),0)+isnull(cast([ACH Count]  as numeric),0)  'Total Count' 
+  isnull(cast([Credit Volume]as numeric),0)+isnull(cast([Debit Volume] as numeric),0)+isnull(cast([eCheck Volume] as numeric),0)+isnull(cast([Scan Volume] as numeric),0) 'Total Volume' ,
+  isnull(cast([Credit Count]  as numeric),0)+isnull(cast([Debit Count]  as numeric),0)+isnull(cast([eCheck Count]  as numeric),0)+isnull(cast([Scan Count]  as numeric),0)  'Total Count' 
 from #Report
-
-
-
