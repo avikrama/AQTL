@@ -1,0 +1,22 @@
+declare @start as date = '2016-06-01', @end as date = '2016-06-05'  
+
+select  * from (
+select 
+	day(txn.PostDate_R) Day, c.ParentName,
+	sum(txn.Amount) TPV,
+	row_number()  over (partition by day(txn.PostDate_R) order by sum(txn.amount) desc) as Rank
+from 
+	YapstoneDM..[Transaction] txn 
+	inner join ETLStaging..FinanceParentTable c on c.ChildCompanyId  = txn.Ref_CompanyId and c.PlatformId = txn.PlatformId
+where
+	txn.TransactionCycleId = 1 
+	and txn.PlatformId = 1 
+	and txn.ProcessorId not in (14,16)
+	and txn.PostDate_R between @start and @end
+group by 
+	day(txn.PostDate_R), c.ParentName
+
+) src
+where
+	Rank <= 5
+order by 1,4
