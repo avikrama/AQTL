@@ -34,7 +34,8 @@ where
 	'75-27206950',	--	Breeden Property Management
 	'25-38257142',	--	Mahaffey Company
 	'06-11241364',	--	ECI Management Corporation
-	'36-13268335'	--	Freeman Webb Company Realtors	
+	'36-13268335',	--	Freeman Webb Company Realtors	
+	'26-10416064'	--  Beacon Residential
 	)
 group by
 	c.PlatformId, c.ParentAccountId, c.ParentName
@@ -86,10 +87,12 @@ insert into #PilotStartDate  select ''65-12836930'',''11/01/2015''
 insert into #PilotStartDate  select ''95-26894334'',''11/01/2015''
 insert into #PilotStartDate  select ''95-55693023'',''11/01/2015''
 insert into #PilotStartDate  select ''55-12312695'',''04/01/2016''
-insert into #PilotStartDate  select ''75-27206950'',''03/01/2016''
+insert into #PilotStartDate  select ''75-27206950'',''04/01/2016''
 insert into #PilotStartDate  select ''25-38257142'',''03/01/2016''
 insert into #PilotStartDate  select ''06-11241364'',''03/01/2016''
-insert into #PilotStartDate  select ''36-13268335'',''03/01/2016'''
+insert into #PilotStartDate  select ''36-13268335'',''03/01/2016''
+insert into #PilotStartDate  select ''26-10416064'',''07/01/2016''
+'
 exec(@PilotStartDateQuery)
 
 select @PilotStartDate = stuff((select ',' + quotename(colName) from (
@@ -175,5 +178,3 @@ select *,
 from #Report
 ) src
 ) src
-
-
